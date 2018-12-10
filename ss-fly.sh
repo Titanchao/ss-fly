@@ -106,7 +106,7 @@ install_bbr() {
 		echo -e "[${green}提示${plain}] TCP BBR加速开启成功"
 		exit 0
 	fi
-	    
+
 	if [[ x"${os}" == x"centos" ]]; then
         	install_elrepo
         	yum --enablerepo=elrepo-kernel -y install kernel-ml kernel-ml-devel
@@ -156,6 +156,7 @@ install_ssr() {
 	wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR.sh
 	chmod +x shadowsocksR.sh
 	./shadowsocksR.sh 2>&1 | tee shadowsocksR.log
+    echo "SSR Done"
 }
 
 check_os_() {
@@ -400,32 +401,32 @@ getversion(){
 
 install() {
         if [ ! -f /usr/lib/libsodium.a ]
-        then 
+        then
                 cd ${DIR}
                 tar zxf ${libsodium_file}.tar.gz
                 cd ${libsodium_file}
                 ./configure --prefix=/usr && make && make install
-                if [ $? -ne 0 ] 
-                then 
+                if [ $? -ne 0 ]
+                then
                         echo -e "[${red}错误${plain}] libsodium安装失败!"
                         cleanup
-                exit 1  
+                exit 1
                 fi
-        fi      
+        fi
         ldconfig
-        
+
         cd ${DIR}
         unzip -q shadowsocks-master.zip
         if [ $? -ne 0 ]
-        then 
+        then
                 echo -e "[${red}错误${plain}] 解压缩失败，请检查unzip命令"
                 cleanup
                 exit 1
-        fi      
+        fi
         cd ${DIR}/shadowsocks-master
         python setup.py install --record /usr/local/shadowsocks_install.log
         if [ -f /usr/bin/ssserver ] || [ -f /usr/local/bin/ssserver ]
-        then 
+        then
                 cp $fly_dir/ss-fly /etc/init.d/
                 chmod +x /etc/init.d/ss-fly
                 case $os in
@@ -436,13 +437,13 @@ install() {
                                 chkconfig --add ss-fly
                                 chkconfig ss-fly on
                                 ;;
-                esac            
+                esac
                 ssserver -c /etc/shadowsocks.json -d start
-        else    
+        else
                 echo -e "[${red}错误${plain}] ss服务器安装失败，请联系flyzy小站（https://www.flyzy2005.com）"
                 cleanup
                 exit 1
-        fi      
+        fi
         echo -e "[${green}成功${plain}] 安装成功尽情冲浪！"
         echo -e "你的服务器地址（IP）：\033[41;37m $(get_ip) \033[0m"
         echo -e "你的密码            ：\033[41;37m ${password} \033[0m"
